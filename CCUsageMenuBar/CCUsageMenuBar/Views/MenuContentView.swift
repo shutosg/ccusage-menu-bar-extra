@@ -8,11 +8,8 @@ struct MenuContentView: View {
         VStack(alignment: .leading, spacing: 8) {
             // Header
             HStack {
-                Image(systemName: "dollarsign.circle.fill")
-                    .font(.title2)
-                    .foregroundColor(.accentColor)
-                Text("CCUsage")
-                    .font(.headline)
+                Text("ccusage menu bar")
+                    .font(.body)
                 Spacer()
             }
             .padding(.bottom, 4)
@@ -36,6 +33,7 @@ struct MenuContentView: View {
                         Text("$\(cost, specifier: "%.2f")")
                             .font(.title2)
                             .fontWeight(.semibold)
+                            .foregroundColor(.blue)
                         
                         // Token details - same layout as monthly
                         HStack(spacing: 12) {
@@ -97,6 +95,7 @@ struct MenuContentView: View {
                         Text("$\(monthly.totalCost, specifier: "%.2f")")
                             .font(.title2)
                             .fontWeight(.semibold)
+                            .foregroundColor(.blue)
                         
                         // Token details - smaller
                         HStack(spacing: 12) {
@@ -146,7 +145,6 @@ struct MenuContentView: View {
                     }
                 }) {
                     HStack {
-                        Image(systemName: "arrow.clockwise")
                         Text("Refresh")
                         Spacer()
                     }
@@ -159,7 +157,6 @@ struct MenuContentView: View {
                     settingsWindowController.showSettings(viewModel: viewModel)
                 }) {
                     HStack {
-                        Image(systemName: "gear")
                         Text("Settings...")
                         Spacer()
                     }
@@ -172,7 +169,6 @@ struct MenuContentView: View {
                     NSApplication.shared.terminate(nil)
                 }) {
                     HStack {
-                        Image(systemName: "power")
                         Text("Quit")
                         Spacer()
                     }
