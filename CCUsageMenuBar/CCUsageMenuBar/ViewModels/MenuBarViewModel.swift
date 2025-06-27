@@ -5,6 +5,8 @@ import SwiftUI
 class MenuBarViewModel: ObservableObject {
     @Published var todayCost: Double?
     @Published var todayTokens: Int?
+    @Published var todayInputTokens: Int?
+    @Published var todayOutputTokens: Int?
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var lastUpdated: Date?
@@ -32,6 +34,8 @@ class MenuBarViewModel: ObservableObject {
             let usage = try await ccusageService.fetchDailyUsage()
             todayCost = usage.totalCost
             todayTokens = usage.totalTokens
+            todayInputTokens = usage.inputTokens
+            todayOutputTokens = usage.outputTokens
             lastUpdated = Date()
             errorMessage = nil
         } catch {
@@ -47,6 +51,8 @@ class MenuBarViewModel: ObservableObject {
                     // This is OK - just no usage today
                     todayCost = 0.0
                     todayTokens = 0
+                    todayInputTokens = 0
+                    todayOutputTokens = 0
                     lastUpdated = Date()
                     errorMessage = nil
                 default:
