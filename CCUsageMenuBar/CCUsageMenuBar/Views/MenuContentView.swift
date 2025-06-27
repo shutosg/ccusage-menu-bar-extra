@@ -3,8 +3,6 @@ import SwiftUI
 struct MenuContentView: View {
     @ObservedObject var viewModel: MenuBarViewModel
     private let settingsWindowController = SettingsWindowController()
-    @State private var monthlyData: MonthlyUsageData?
-    @State private var isLoadingMonthly = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -89,11 +87,11 @@ struct MenuContentView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
                 
-                if isLoadingMonthly {
+                if viewModel.isLoading {
                     ProgressView()
                         .scaleEffect(0.8)
                         .frame(maxWidth: .infinity, alignment: .center)
-                } else if let monthly = monthlyData {
+                } else if let monthly = viewModel.monthlyData {
                     VStack(alignment: .leading, spacing: 8) {
                         // Total cost - same as today's cost
                         Text("$\(monthly.totalCost, specifier: "%.2f")")
@@ -145,7 +143,6 @@ struct MenuContentView: View {
                 Button(action: {
                     Task {
                         await viewModel.refresh()
-                        await loadMonthlyData()
                     }
                 }) {
                     HStack {
@@ -199,24 +196,6 @@ struct MenuContentView: View {
         }
         .padding()
         .frame(width: 250)
-        .task {
-            await viewModel.refresh()
-            await loadMonthlyData()
-        }
-    }
-    
-    private func loadMonthlyData() async {
-        isLoadingMonthly = true
-        
-        do {
-            let service = CCUsageService()
-            monthlyData = try await service.fetchMonthlyUsage()
-        } catch {
-            print("Error loading monthly data: \(error)")
-            monthlyData = nil
-        }
-        
-        isLoadingMonthly = false
     }
 
     private var timeFormatter: DateFormatter {

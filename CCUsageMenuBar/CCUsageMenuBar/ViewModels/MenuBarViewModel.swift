@@ -7,6 +7,7 @@ class MenuBarViewModel: ObservableObject {
     @Published var todayTokens: Int?
     @Published var todayInputTokens: Int?
     @Published var todayOutputTokens: Int?
+    @Published var monthlyData: MonthlyUsageData?
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var lastUpdated: Date?
@@ -41,6 +42,7 @@ class MenuBarViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
+        // Fetch daily usage
         do {
             let usage = try await ccusageService.fetchDailyUsage()
             todayCost = usage.totalCost
@@ -70,6 +72,14 @@ class MenuBarViewModel: ObservableObject {
                     break
                 }
             }
+        }
+        
+        // Fetch monthly usage
+        do {
+            monthlyData = try await ccusageService.fetchMonthlyUsage()
+        } catch {
+            print("Error fetching monthly usage: \(error)")
+            monthlyData = nil
         }
         
         isLoading = false
