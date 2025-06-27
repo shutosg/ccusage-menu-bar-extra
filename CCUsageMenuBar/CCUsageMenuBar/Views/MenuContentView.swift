@@ -1,5 +1,20 @@
 import SwiftUI
 
+struct MenuButtonStyle: ButtonStyle {
+    @State private var isHovered = false
+    
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background(
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(isHovered ? Color.gray.opacity(0.2) : Color.clear)
+            )
+            .onHover { hovering in
+                isHovered = hovering
+            }
+    }
+}
+
 struct MenuContentView: View {
     @ObservedObject var viewModel: MenuBarViewModel
     private let settingsWindowController = SettingsWindowController()
@@ -148,8 +163,10 @@ struct MenuContentView: View {
                         Text("Refresh")
                         Spacer()
                     }
+                    .padding(.vertical, 2)
+                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(MenuButtonStyle())
                 .disabled(viewModel.isLoading)
                 
 
@@ -160,8 +177,10 @@ struct MenuContentView: View {
                         Text("Settings...")
                         Spacer()
                     }
+                    .padding(.vertical, 2)
+                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(MenuButtonStyle())
 
                 Divider()
 
@@ -172,8 +191,10 @@ struct MenuContentView: View {
                         Text("Quit")
                         Spacer()
                     }
+                    .padding(.vertical, 2)
+                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(MenuButtonStyle())
             }
 
             // Last updated and auto-update info
