@@ -8,13 +8,20 @@ class MenuBarViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var lastUpdated: Date?
+    @Published var updateInterval: TimeInterval = 300 // 5 minutes default
     
     private let ccusageService = CCUsageService()
+    private var updateTimer: Timer?
     
     init() {
         Task {
             await refresh()
         }
+        startAutoUpdate()
+    }
+    
+    deinit {
+        updateTimer?.invalidate()
     }
     
     func refresh() async {
@@ -49,5 +56,27 @@ class MenuBarViewModel: ObservableObject {
         }
         
         isLoading = false
+    }
+    
+    func startAutoUpdate() {
+        stopAutoUpdate() // Stop any existing timer
+        
+        updateTimer = Timer.scheduledTimer(withTimeInterval: updateInterval, repeats: true) { _ in
+            Task { @MainActor in
+                await self.refresh()
+            }
+        }
+    }
+    
+    func stopAutoUpdate() {
+        updateTimer?.invalidate()
+        updateTimer = nil
+    }
+    
+    func setUpdateInterval(_ interval: TimeInterval) {
+        updateInterval = interval
+        if updateTimer != nil {
+            startAutoUpdate() // Restart timer with new interval
+        }
     }
 }

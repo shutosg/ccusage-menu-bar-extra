@@ -96,13 +96,18 @@ struct MenuContentView: View {
                 .buttonStyle(.plain)
             }
             
-            // Last updated
+            // Last updated and auto-update info
             if let lastUpdated = viewModel.lastUpdated {
                 Divider()
-                Text("Updated: \(lastUpdated, formatter: timeFormatter)")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .center)
+                VStack(spacing: 2) {
+                    Text("Updated: \(lastUpdated, formatter: timeFormatter)")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                    Text("Auto-updates every \(Int(viewModel.updateInterval / 60)) min")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
             }
         }
         .padding()
