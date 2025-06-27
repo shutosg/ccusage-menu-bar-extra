@@ -102,7 +102,7 @@ struct SettingsView: View {
                 
                 Button("Save") {
                     // Apply settings
-                    viewModel.setUpdateInterval(selectedInterval)
+                    viewModel.updateInterval = selectedInterval
                     onClose()
                 }
                 .keyboardShortcut(.defaultAction)

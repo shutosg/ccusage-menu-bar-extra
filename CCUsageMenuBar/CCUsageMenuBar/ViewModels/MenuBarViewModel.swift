@@ -10,12 +10,23 @@ class MenuBarViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var lastUpdated: Date?
-    @Published var updateInterval: TimeInterval = 300 // 5 minutes default
+    @Published var updateInterval: TimeInterval {
+        didSet {
+            settingsManager.settings.updateInterval = updateInterval
+            if updateTimer != nil {
+                startAutoUpdate()
+            }
+        }
+    }
     
     private let ccusageService = CCUsageService()
+    private let settingsManager = SettingsManager()
     private var updateTimer: Timer?
     
     init() {
+        // Load saved settings
+        self.updateInterval = settingsManager.settings.updateInterval
+        
         Task {
             await refresh()
         }
@@ -77,12 +88,5 @@ class MenuBarViewModel: ObservableObject {
     func stopAutoUpdate() {
         updateTimer?.invalidate()
         updateTimer = nil
-    }
-    
-    func setUpdateInterval(_ interval: TimeInterval) {
-        updateInterval = interval
-        if updateTimer != nil {
-            startAutoUpdate() // Restart timer with new interval
-        }
     }
 }
