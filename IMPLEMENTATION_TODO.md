@@ -4,14 +4,17 @@
 
 ### 高優先度タスク
 - [ ] **1. Xcodeプロジェクトの作成とセットアップ**
-  - macOSアプリテンプレートで新規プロジェクト作成
+  - XcodeBuildMCPでmacOSプロジェクト作成（`xcode-create-project`）
   - プロジェクト名: CCUsageMenuBar
-  - SwiftUIを選択
+  - SwiftUIテンプレート使用
   - 最小対応OS: macOS 13.0に設定
+  - プロジェクトのビルド設定確認（`xcode-list-settings`）
 
 - [ ] **2. 基本的なMenuBarExtraアプリの実装**
   - CCUsageMenuBarApp.swiftでMenuBarExtraを設定
   - 最小限のメニューバー表示を確認
+  - XcodeBuildMCPでビルド実行（`xcode-build`）
+  - アプリの起動テスト（`xcode-launch-app`）
 
 - [ ] **3. CCUsageServiceの実装（ccusageコマンド実行）**
   - Processクラスを使用してccusageコマンドを実行
@@ -76,6 +79,11 @@
   - ccusageコマンドのエラー処理
   - ユーザーへのフィードバック
 
+- [ ] **16. リリースビルドの作成**
+  - XcodeBuildMCPでリリースビルド（`xcode-build --configuration Release`）
+  - アプリのアーカイブ作成
+  - 配布用DMGの作成
+
 ## 実装時の注意事項
 
 ### 各フェーズの完了条件
@@ -88,6 +96,7 @@
 - [ ] JSON解析が正しく行われるか
 - [ ] 更新間隔が設定通りに動作するか
 - [ ] 設定が正しく保存・復元されるか
+- [ ] XcodeBuildMCPでテスト実行（`xcode-test`）
 
 ### デバッグ用タスク
 - [ ] コンソールログの追加
@@ -97,15 +106,27 @@
 ## 開発環境セットアップ
 
 1. Xcode 15.0以上をインストール
-2. ccusageコマンドがインストール済みであることを確認
+2. XcodeBuildMCP を有効化
+   - MCPサーバーとしてXcodeBuildMCPを設定
+   - 利用可能なコマンドを確認
+3. ccusageコマンドがインストール済みであることを確認
    ```bash
    which ccusage
    ccusage --version
    ```
-3. サンプルのJSONLファイルが存在することを確認
+4. サンプルのJSONLファイルが存在することを確認
    ```bash
    ls ~/.claude/code/usage_logs/
    ```
+
+## XcodeBuildMCP 活用のポイント
+
+- **プロジェクト作成**: `xcode-create-project`でmacOSアプリテンプレートから開始
+- **ビルド管理**: `xcode-build`でインクリメンタルビルド、`xcode-clean`でクリーンビルド
+- **デバッグ**: `xcode-launch-app`でアプリ起動、`xcode-stop-app`で停止
+- **テスト**: `xcode-test`でユニットテストとUIテストを実行
+- **設定確認**: `xcode-list-settings`でビルド設定を確認
+- **スキーム管理**: `xcode-list-schemes`でビルドスキームを確認
 
 ## 次のステップ
 
@@ -113,3 +134,4 @@
 2. 各タスク完了時にチェックを入れる
 3. Phase完了時に動作確認とテストを実施
 4. 問題があれば仕様書を参照して調整
+5. XcodeBuildMCPを活用して効率的に開発を進める
