@@ -2,7 +2,8 @@ import SwiftUI
 
 struct MenuContentView: View {
     @ObservedObject var viewModel: MenuBarViewModel
-    
+    private let settingsWindowController = SettingsWindowController()
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // Header
@@ -15,15 +16,15 @@ struct MenuContentView: View {
                 Spacer()
             }
             .padding(.bottom, 4)
-            
+
             Divider()
-            
+
             // Today's usage
             VStack(alignment: .leading, spacing: 4) {
                 Text("Today's Usage")
                     .font(.caption)
                     .foregroundColor(.secondary)
-                
+
                 if viewModel.isLoading {
                     ProgressView()
                         .scaleEffect(0.8)
@@ -52,9 +53,9 @@ struct MenuContentView: View {
                 }
             }
             .padding(.vertical, 4)
-            
+
             Divider()
-            
+
             // Actions
             VStack(spacing: 4) {
                 Button(action: {
@@ -70,9 +71,9 @@ struct MenuContentView: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(viewModel.isLoading)
-                
+
                 Button(action: {
-                    // TODO: Implement settings
+                    settingsWindowController.showSettings(viewModel: viewModel)
                 }) {
                     HStack {
                         Image(systemName: "gear")
@@ -81,9 +82,9 @@ struct MenuContentView: View {
                     }
                 }
                 .buttonStyle(.plain)
-                
+
                 Divider()
-                
+
                 Button(action: {
                     NSApplication.shared.terminate(nil)
                 }) {
@@ -95,7 +96,7 @@ struct MenuContentView: View {
                 }
                 .buttonStyle(.plain)
             }
-            
+
             // Last updated and auto-update info
             if let lastUpdated = viewModel.lastUpdated {
                 Divider()
@@ -116,7 +117,7 @@ struct MenuContentView: View {
             await viewModel.refresh()
         }
     }
-    
+
     private var timeFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.timeStyle = .short
