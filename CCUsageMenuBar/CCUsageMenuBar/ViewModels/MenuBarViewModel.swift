@@ -11,6 +11,12 @@ class MenuBarViewModel: ObservableObject {
     
     private let ccusageService = CCUsageService()
     
+    init() {
+        Task {
+            await refresh()
+        }
+    }
+    
     func refresh() async {
         isLoading = true
         errorMessage = nil

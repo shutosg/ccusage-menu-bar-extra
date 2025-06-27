@@ -6,7 +6,7 @@ struct CCUsageMenuBarApp: App {
     
     var body: some Scene {
         MenuBarExtra(
-            viewModel.todayCost != nil ? "$\(viewModel.todayCost!, specifier: "%.2f")" : "CCUsage"
+            viewModel.todayCost != nil ? "$\(viewModel.todayCost!, specifier: "%.2f")" : "Loading..."
         ) {
             MenuContentView(viewModel: viewModel)
         }
