@@ -2,6 +2,8 @@
 
 A macOS menu bar application that displays Claude Code usage and costs using [ccusage](https://github.com/ryoppippi/ccusage).
 
+<img src="screenshots/screenshot_01.png" alt="Menu Bar and Dropdown" height="400">
+
 ## Features
 
 - 💵 Real-time display of today's Claude Code costs in the menu bar (e.g., "$54.51")
@@ -142,18 +144,24 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 ## Screenshots
 
-### Menu Bar Display
+### Menu Bar and Dropdown
 
-The app shows today's cost directly in the menu bar.
+<img src="screenshots/screenshot_01.png" alt="Menu Bar and Dropdown" height="400">
 
-### Dropdown Menu
+The app displays today's cost in the menu bar (e.g., "$140.07"). Click to view:
 
-Click to see detailed usage information including:
-
-- Today's token usage breakdown
-- Monthly usage summary
+- Today's usage breakdown with total tokens, input, and output
+- This month's cumulative usage and costs
 - Quick access to refresh and settings
+- Auto-update status and interval
 
 ### Settings Screen
 
-Configure update intervals, launch at login, and custom paths.
+<img src="screenshots/screenshot_02.png" alt="Settings Screen" height="400">
+
+Configure your preferences:
+
+- **Update Interval**: Choose between 1, 3, 5, or 10 minutes
+- **Launch at Login**: Automatically start when you log in
+- **JSONL File Path**: Specify custom path for Claude Code usage logs
+- **ccusage Command Path**: Set custom ccusage installation path or use auto-detect
