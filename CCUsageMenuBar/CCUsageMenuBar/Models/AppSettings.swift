@@ -26,6 +26,9 @@ class SettingsManager: ObservableObject {
     
     init() {
         self.settings = Self.loadSettings()
+        
+        // Sync launch at login with system setting
+        syncLaunchAtLogin()
     }
     
     private static func loadSettings() -> AppSettings {
@@ -39,6 +42,17 @@ class SettingsManager: ObservableObject {
     private func saveSettings() {
         if let data = try? JSONEncoder().encode(settings) {
             UserDefaults.standard.set(data, forKey: settingsKey)
+        }
+        
+        // Update launch at login
+        LaunchAtLogin.shared.isEnabled = settings.autoLaunchAtLogin
+    }
+    
+    private func syncLaunchAtLogin() {
+        // Sync the setting with the actual system state
+        let systemState = LaunchAtLogin.shared.isEnabled
+        if settings.autoLaunchAtLogin != systemState {
+            settings.autoLaunchAtLogin = systemState
         }
     }
     

@@ -8,6 +8,7 @@ struct SettingsView: View {
     @State private var selectedInterval: TimeInterval
     @State private var jsonlFilePath: String
     @State private var ccusageCommandPath: String
+    @State private var autoLaunchAtLogin: Bool
     
     init(viewModel: MenuBarViewModel, onClose: @escaping () -> Void) {
         self.viewModel = viewModel
@@ -20,6 +21,8 @@ struct SettingsView: View {
         
         let currentCCUsagePath = viewModel.settingsManager.settings.ccusageCommandPath ?? viewModel.ccusageService.ccusageCommand
         self._ccusageCommandPath = State(initialValue: currentCCUsagePath)
+        
+        self._autoLaunchAtLogin = State(initialValue: viewModel.settingsManager.settings.autoLaunchAtLogin)
     }
     
     var body: some View {
@@ -60,6 +63,9 @@ struct SettingsView: View {
                             .pickerStyle(.segmented)
                             .labelsHidden()
                         }
+                        
+                        Toggle("Launch at Login", isOn: $autoLaunchAtLogin)
+                            .padding(.top, 8)
                     }
                     
                     Divider()
@@ -126,6 +132,9 @@ struct SettingsView: View {
                     // Apply path settings
                     viewModel.settingsManager.settings.jsonlFilePath = jsonlFilePath.isEmpty ? nil : jsonlFilePath
                     viewModel.settingsManager.settings.ccusageCommandPath = ccusageCommandPath.isEmpty ? nil : ccusageCommandPath
+                    
+                    // Apply launch at login setting
+                    viewModel.settingsManager.settings.autoLaunchAtLogin = autoLaunchAtLogin
                     
                     // Update the service with new paths
                     viewModel.updatePaths(
