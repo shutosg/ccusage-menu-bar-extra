@@ -21,10 +21,63 @@ class CCUsageService {
         }
     }
     
-    private let ccusageCommand: String
+    let ccusageCommand: String  // Made public for settings display
     
-    init(ccusageCommand: String = "ccusage") {
-        self.ccusageCommand = ccusageCommand
+    init(ccusageCommand: String? = nil) {
+        // If a specific command is provided, use it
+        if let command = ccusageCommand {
+            self.ccusageCommand = command
+            return
+        }
+        
+        // Get home directory
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
+        
+        var foundPath: String? = nil
+        
+        // First, try to find ccusage in nvm installations
+        let nvmPath = "\(homeDir)/.nvm/versions/node"
+        if FileManager.default.fileExists(atPath: nvmPath) {
+            do {
+                let nodeVersions = try FileManager.default.contentsOfDirectory(atPath: nvmPath)
+                // Sort versions to try newest first
+                let sortedVersions = nodeVersions.sorted { $0.compare($1, options: .numeric) == .orderedDescending }
+                
+                for version in sortedVersions {
+                    let ccusagePath = "\(nvmPath)/\(version)/bin/ccusage"
+                    if FileManager.default.fileExists(atPath: ccusagePath) {
+                        foundPath = ccusagePath
+                        break
+                    }
+                }
+            } catch {
+                // Ignore errors and continue with fallback paths
+            }
+        }
+        
+        // If not found in nvm, check other common paths
+        if foundPath == nil {
+            let fallbackPaths = [
+                "/usr/local/bin/ccusage",
+                "/opt/homebrew/bin/ccusage",
+                "\(homeDir)/.local/bin/ccusage",
+                "/usr/bin/ccusage"
+            ]
+            
+            for path in fallbackPaths {
+                if FileManager.default.fileExists(atPath: path) {
+                    foundPath = path
+                    break
+                }
+            }
+        }
+        
+        // Use the found path or fallback to "ccusage"
+        if let found = foundPath {
+            self.ccusageCommand = found
+        } else {
+            self.ccusageCommand = "ccusage"
+        }
     }
     
     func fetchDailyUsage() async throws -> DailyUsageData {
@@ -77,9 +130,37 @@ class CCUsageService {
     }
     
     private func executeCCUsage(arguments: [String]) async throws -> Data {
+        
         let task = Process()
-        task.launchPath = "/usr/bin/env"
-        task.arguments = [ccusageCommand] + arguments
+        
+        // If ccusageCommand is a full path to an nvm-installed command, use node directly
+        if ccusageCommand.contains("/.nvm/versions/node/") {
+            // Extract the node path from the ccusage path
+            let components = ccusageCommand.components(separatedBy: "/")
+            if let binIndex = components.firstIndex(of: "bin"),
+               binIndex > 0 {
+                let nodePath = components[0..<binIndex].joined(separator: "/") + "/bin/node"
+                if FileManager.default.fileExists(atPath: nodePath) {
+                    task.launchPath = nodePath
+                    task.arguments = [ccusageCommand] + arguments
+                } else {
+                    // Fallback to using the script directly
+                    task.launchPath = ccusageCommand
+                    task.arguments = arguments
+                }
+            } else {
+                task.launchPath = ccusageCommand
+                task.arguments = arguments
+            }
+        } else if ccusageCommand.hasPrefix("/") {
+            // Other full paths - execute directly
+            task.launchPath = ccusageCommand
+            task.arguments = arguments
+        } else {
+            // Otherwise, use env to find it in PATH
+            task.launchPath = "/usr/bin/env"
+            task.arguments = [ccusageCommand] + arguments
+        }
         
         let pipe = Pipe()
         let errorPipe = Pipe()

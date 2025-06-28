@@ -20,7 +20,7 @@ class MenuBarViewModel: ObservableObject {
         }
     }
     
-    private let ccusageService = CCUsageService()
+    let ccusageService = CCUsageService()  // Made public for settings display
     private let settingsManager = SettingsManager()
     private var updateTimer: Timer?
     
@@ -53,7 +53,6 @@ class MenuBarViewModel: ObservableObject {
             errorMessage = nil
         } catch {
             errorMessage = error.localizedDescription
-            print("Error fetching usage: \(error)")
             
             // If ccusage command not found, show helpful error
             if let ccusageError = error as? CCUsageService.CCUsageError {

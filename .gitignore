@@ -37,3 +37,6 @@ project.xcworkspace/
 
 # Script files created during development
 create_xcode_project.sh
+
+# Release builds
+CCUsageMenuBar/release/

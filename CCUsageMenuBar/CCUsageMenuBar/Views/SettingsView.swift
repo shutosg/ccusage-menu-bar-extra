@@ -76,7 +76,7 @@ struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("ccusage Command Path")
                                 .font(.body)
-                            Text("ccusage")
+                            Text(viewModel.ccusageService.ccusageCommand)
                                 .font(.system(.body, design: .monospaced))
                                 .foregroundColor(.secondary)
                                 .padding(.horizontal, 8)
