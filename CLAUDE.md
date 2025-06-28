@@ -13,7 +13,7 @@ ccusage CLIツールを使用してClaude Codeの使用コストを表示するm
 - ログイン時起動サポート
 - ccusageパスの動的検出
 
-## 開発ルール（DEVELOPMENT_RULES.mdより）
+## 開発ルール（docs/DEVELOPMENT_RULES.mdより）
 
 ### タスク完了要件
 
@@ -47,9 +47,6 @@ swift build
 
 # リリースビルド
 ./build-release.sh
-
-# アプリアイコン生成
-./generate-app-icon.sh
 ```
 
 ### リントとタイプチェック
