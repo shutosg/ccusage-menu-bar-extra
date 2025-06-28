@@ -2,7 +2,7 @@ import SwiftUI
 
 struct MenuButtonStyle: ButtonStyle {
     @State private var isHovered = false
-    
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .background(
@@ -23,7 +23,7 @@ struct MenuContentView: View {
         VStack(alignment: .leading, spacing: 8) {
             // Header
             HStack {
-                Text("ccusage menu bar")
+                Text("ccusage Menu Bar")
                     .font(.body)
                 Spacer()
             }
@@ -49,7 +49,7 @@ struct MenuContentView: View {
                             .font(.title2)
                             .fontWeight(.semibold)
                             .foregroundColor(.blue)
-                        
+
                         // Token details - same layout as monthly
                         HStack(spacing: 12) {
                             VStack(alignment: .leading, spacing: 2) {
@@ -60,7 +60,7 @@ struct MenuContentView: View {
                                     .font(.caption)
                                     .fontWeight(.medium)
                             }
-                            
+
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Input")
                                     .font(.caption2)
@@ -69,7 +69,7 @@ struct MenuContentView: View {
                                     .font(.caption)
                                     .fontWeight(.medium)
                             }
-                            
+
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Output")
                                     .font(.caption2)
@@ -93,13 +93,13 @@ struct MenuContentView: View {
             .padding(.vertical, 4)
 
             Divider()
-            
+
             // Monthly usage
             VStack(alignment: .leading, spacing: 4) {
                 Text("This Month")
                     .font(.caption)
                     .foregroundColor(.secondary)
-                
+
                 if viewModel.isLoading {
                     ProgressView()
                         .scaleEffect(0.8)
@@ -111,7 +111,7 @@ struct MenuContentView: View {
                             .font(.title2)
                             .fontWeight(.semibold)
                             .foregroundColor(.blue)
-                        
+
                         // Token details - smaller
                         HStack(spacing: 12) {
                             VStack(alignment: .leading, spacing: 2) {
@@ -122,7 +122,7 @@ struct MenuContentView: View {
                                     .font(.caption)
                                     .fontWeight(.medium)
                             }
-                            
+
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Input")
                                     .font(.caption2)
@@ -131,7 +131,7 @@ struct MenuContentView: View {
                                     .font(.caption)
                                     .fontWeight(.medium)
                             }
-                            
+
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Output")
                                     .font(.caption2)
@@ -168,7 +168,7 @@ struct MenuContentView: View {
                 }
                 .buttonStyle(MenuButtonStyle())
                 .disabled(viewModel.isLoading)
-                
+
 
                 Button(action: {
                     settingsWindowController.showSettings(viewModel: viewModel)

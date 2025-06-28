@@ -20,7 +20,7 @@ swift build -c release --arch arm64 --arch x86_64
 mkdir -p ./release
 
 # Create app bundle structure
-APP_NAME="CCUsage Menu Bar.app"
+APP_NAME="ccusage Menu Bar.app"
 APP_PATH="./release/$APP_NAME"
 mkdir -p "$APP_PATH/Contents/MacOS"
 mkdir -p "$APP_PATH/Contents/Resources"
@@ -46,7 +46,7 @@ fi
 
 # Create DMG
 echo "💿 Creating DMG..."
-DMG_NAME="CCUsageMenuBar-1.0.0.dmg"
+DMG_NAME="ccusageMenuBar-1.0.0.dmg"
 DMG_PATH="./release/$DMG_NAME"
 
 # Create a temporary directory for DMG contents
@@ -58,7 +58,7 @@ cp -R "$APP_PATH" "$DMG_TEMP/"
 ln -s /Applications "$DMG_TEMP/Applications"
 
 # Create DMG
-hdiutil create -volname "CCUsage Menu Bar" -srcfolder "$DMG_TEMP" -ov -format UDZO "$DMG_PATH"
+hdiutil create -volname "ccusage Menu Bar" -srcfolder "$DMG_TEMP" -ov -format UDZO "$DMG_PATH"
 
 # Clean up temporary directory
 rm -rf "$DMG_TEMP"
@@ -66,7 +66,7 @@ rm -rf "$DMG_TEMP"
 # Create ZIP as an alternative
 echo "🗜️  Creating ZIP archive..."
 cd ./release
-zip -r "CCUsageMenuBar-1.0.0.zip" "$APP_NAME"
+zip -r "ccusageMenuBar-1.0.0.zip" "$APP_NAME"
 cd ..
 
 echo "✅ Build complete!"
@@ -74,7 +74,7 @@ echo ""
 echo "📁 Release files created in ./CCUsageMenuBar/release/"
 echo "   - $APP_NAME (Application bundle)"
 echo "   - $DMG_NAME (Disk image for distribution)"
-echo "   - CCUsageMenuBar-1.0.0.zip (ZIP archive)"
+echo "   - ccusageMenuBar-1.0.0.zip (ZIP archive)"
 echo ""
 echo "📝 Next steps:"
 echo "   1. Test the app from the release folder"
