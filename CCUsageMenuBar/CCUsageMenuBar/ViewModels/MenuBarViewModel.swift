@@ -20,18 +20,37 @@ class MenuBarViewModel: ObservableObject {
         }
     }
     
-    let ccusageService = CCUsageService()  // Made public for settings display
-    private let settingsManager = SettingsManager()
+    var ccusageService: CCUsageService  // Made public for settings display
+    let settingsManager = SettingsManager()
     private var updateTimer: Timer?
     
     init() {
         // Load saved settings
         self.updateInterval = settingsManager.settings.updateInterval
         
+        // Initialize CCUsageService with custom paths if available
+        self.ccusageService = CCUsageService(
+            ccusageCommand: settingsManager.settings.ccusageCommandPath,
+            jsonlFilePath: settingsManager.settings.jsonlFilePath
+        )
+        
         Task {
             await refresh()
         }
         startAutoUpdate()
+    }
+    
+    func updatePaths(ccusageCommand: String?, jsonlPath: String?) {
+        // Update the service with new paths
+        self.ccusageService = CCUsageService(
+            ccusageCommand: ccusageCommand?.isEmpty == false ? ccusageCommand : nil,
+            jsonlFilePath: jsonlPath?.isEmpty == false ? jsonlPath : nil
+        )
+        
+        // Refresh data with new settings
+        Task {
+            await refresh()
+        }
     }
     
     deinit {

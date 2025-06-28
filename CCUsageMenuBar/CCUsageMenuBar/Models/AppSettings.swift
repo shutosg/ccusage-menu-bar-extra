@@ -3,10 +3,14 @@ import Foundation
 struct AppSettings: Codable {
     var updateInterval: TimeInterval
     var autoLaunchAtLogin: Bool
+    var jsonlFilePath: String?
+    var ccusageCommandPath: String?
     
     static let defaultSettings = AppSettings(
         updateInterval: 300, // 5 minutes
-        autoLaunchAtLogin: false
+        autoLaunchAtLogin: false,
+        jsonlFilePath: nil,
+        ccusageCommandPath: nil
     )
 }
 

@@ -22,8 +22,10 @@ class CCUsageService {
     }
     
     let ccusageCommand: String  // Made public for settings display
+    let jsonlFilePath: String?
     
-    init(ccusageCommand: String? = nil) {
+    init(ccusageCommand: String? = nil, jsonlFilePath: String? = nil) {
+        self.jsonlFilePath = jsonlFilePath
         // If a specific command is provided, use it
         if let command = ccusageCommand {
             self.ccusageCommand = command
@@ -81,7 +83,11 @@ class CCUsageService {
     }
     
     func fetchDailyUsage() async throws -> DailyUsageData {
-        let output = try await executeCCUsage(arguments: ["daily", "--json"])
+        var args = ["daily", "--json"]
+        if let jsonlPath = jsonlFilePath, !jsonlPath.isEmpty {
+            args += ["--path", jsonlPath]
+        }
+        let output = try await executeCCUsage(arguments: args)
         
         let decoder = JSONDecoder()
         let response = try decoder.decode(DailyUsageResponse.self, from: output)
@@ -100,7 +106,11 @@ class CCUsageService {
     }
     
     func fetchMonthlyUsage() async throws -> MonthlyUsageData {
-        let output = try await executeCCUsage(arguments: ["monthly", "--json"])
+        var args = ["monthly", "--json"]
+        if let jsonlPath = jsonlFilePath, !jsonlPath.isEmpty {
+            args += ["--path", jsonlPath]
+        }
+        let output = try await executeCCUsage(arguments: args)
         
         let decoder = JSONDecoder()
         let response = try decoder.decode(MonthlyUsageResponse.self, from: output)
