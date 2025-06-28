@@ -53,7 +53,7 @@ struct MenuContentView: View {
                         // Token details - same layout as monthly
                         HStack(spacing: 12) {
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Total")
+                                Text("Total Tokens")
                                     .font(.caption2)
                                     .foregroundColor(.secondary)
                                 Text("\(tokens.formatted())")
@@ -115,7 +115,7 @@ struct MenuContentView: View {
                         // Token details - smaller
                         HStack(spacing: 12) {
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Total")
+                                Text("Total Tokens")
                                     .font(.caption2)
                                     .foregroundColor(.secondary)
                                 Text("\(monthly.totalTokens.formatted())")
