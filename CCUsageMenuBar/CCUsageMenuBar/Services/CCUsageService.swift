@@ -2,27 +2,37 @@ import Foundation
 
 class CCUsageService {
     enum CCUsageError: LocalizedError {
-        case commandNotFound
-        case executionFailed(String)
-        case invalidJSON
+        case commandNotFound(searchedPaths: [String])
+        case executionFailed(message: String, exitCode: Int32)
+        case invalidJSON(underlyingError: Error?)
         case noDataForToday
+        case filePermissionDenied(path: String)
+        case invalidPath(path: String)
+        case timeout
         
         var errorDescription: String? {
             switch self {
-            case .commandNotFound:
-                return "ccusage command not found"
-            case .executionFailed(let message):
-                return "Command failed: \(message)"
-            case .invalidJSON:
-                return "Invalid JSON response"
+            case .commandNotFound(let paths):
+                return "ccusage command not found. Searched in: \(paths.joined(separator: ", "))"
+            case .executionFailed(let message, let code):
+                return "Command failed (exit code \(code)): \(message)"
+            case .invalidJSON(let error):
+                return "Invalid JSON response\(error != nil ? ": \(error!.localizedDescription)" : "")"
             case .noDataForToday:
                 return "No usage data for today"
+            case .filePermissionDenied(let path):
+                return "Permission denied accessing: \(path)"
+            case .invalidPath(let path):
+                return "Invalid path: \(path)"
+            case .timeout:
+                return "Command execution timed out"
             }
         }
     }
     
     let ccusageCommand: String  // Made public for settings display
     let jsonlFilePath: String?
+    private var searchedPaths: [String] = []
     
     init(ccusageCommand: String? = nil, jsonlFilePath: String? = nil) {
         self.jsonlFilePath = jsonlFilePath
@@ -36,6 +46,7 @@ class CCUsageService {
         let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
         
         var foundPath: String? = nil
+        var searchedPaths: [String] = []
         
         // First, try to find ccusage in nvm installations
         let nvmPath = "\(homeDir)/.nvm/versions/node"
@@ -47,6 +58,7 @@ class CCUsageService {
                 
                 for version in sortedVersions {
                     let ccusagePath = "\(nvmPath)/\(version)/bin/ccusage"
+                    searchedPaths.append(ccusagePath)
                     if FileManager.default.fileExists(atPath: ccusagePath) {
                         foundPath = ccusagePath
                         break
@@ -67,6 +79,7 @@ class CCUsageService {
             ]
             
             for path in fallbackPaths {
+                searchedPaths.append(path)
                 if FileManager.default.fileExists(atPath: path) {
                     foundPath = path
                     break
@@ -74,12 +87,43 @@ class CCUsageService {
             }
         }
         
+        // Store searched paths for error reporting
+        self.searchedPaths = searchedPaths
+        
         // Use the found path or fallback to "ccusage"
         if let found = foundPath {
             self.ccusageCommand = found
         } else {
             self.ccusageCommand = "ccusage"
         }
+    }
+    
+    func fetchDailyUsageWithRetry(maxAttempts: Int = 3) async throws -> DailyUsageData {
+        var lastError: Error?
+        
+        for attempt in 1...maxAttempts {
+            do {
+                return try await fetchDailyUsage()
+            } catch {
+                lastError = error
+                
+                // Don't retry for certain errors
+                if case CCUsageError.commandNotFound = error {
+                    throw error
+                }
+                if case CCUsageError.noDataForToday = error {
+                    throw error
+                }
+                
+                if attempt < maxAttempts {
+                    // Exponential backoff: 1s, 2s, 4s
+                    let delay = UInt64(pow(2.0, Double(attempt - 1)) * 1_000_000_000)
+                    try await Task.sleep(nanoseconds: delay)
+                }
+            }
+        }
+        
+        throw lastError ?? CCUsageError.executionFailed(message: "Max retry attempts reached", exitCode: -1)
     }
     
     func fetchDailyUsage() async throws -> DailyUsageData {
@@ -90,8 +134,17 @@ class CCUsageService {
         let output = try await executeCCUsage(arguments: args)
         
         let decoder = JSONDecoder()
-        let response = try decoder.decode(DailyUsageResponse.self, from: output)
+        do {
+            let response = try decoder.decode(DailyUsageResponse.self, from: output)
+            return try extractTodayData(from: response)
+        } catch let decodingError {
+            throw CCUsageError.invalidJSON(underlyingError: decodingError)
+        }
         
+        // Moved to separate method
+    }
+    
+    private func extractTodayData(from response: DailyUsageResponse) throws -> DailyUsageData {
         // Get today's date string
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -113,8 +166,15 @@ class CCUsageService {
         let output = try await executeCCUsage(arguments: args)
         
         let decoder = JSONDecoder()
-        let response = try decoder.decode(MonthlyUsageResponse.self, from: output)
-        
+        do {
+            let response = try decoder.decode(MonthlyUsageResponse.self, from: output)
+            return extractCurrentMonthData(from: response)
+        } catch let decodingError {
+            throw CCUsageError.invalidJSON(underlyingError: decodingError)
+        }
+    }
+    
+    private func extractCurrentMonthData(from response: MonthlyUsageResponse) -> MonthlyUsageData {
         // Get current month string
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM"
@@ -185,12 +245,12 @@ class CCUsageService {
                     
                     if process.terminationStatus != 0 {
                         let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
-                        continuation.resume(throwing: CCUsageError.executionFailed(errorString))
+                        continuation.resume(throwing: CCUsageError.executionFailed(message: errorString, exitCode: process.terminationStatus))
                         return
                     }
                     
                     if data.isEmpty {
-                        continuation.resume(throwing: CCUsageError.invalidJSON)
+                        continuation.resume(throwing: CCUsageError.invalidJSON(underlyingError: nil))
                         return
                     }
                     
@@ -199,7 +259,7 @@ class CCUsageService {
                 
                 try task.run()
             } catch {
-                continuation.resume(throwing: CCUsageError.commandNotFound)
+                continuation.resume(throwing: CCUsageError.commandNotFound(searchedPaths: self.searchedPaths))
             }
         }
     }

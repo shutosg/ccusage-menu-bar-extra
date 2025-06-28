@@ -9,6 +9,7 @@ struct SettingsView: View {
     @State private var jsonlFilePath: String
     @State private var ccusageCommandPath: String
     @State private var autoLaunchAtLogin: Bool
+    @State private var pathValidationError: String?
     
     init(viewModel: MenuBarViewModel, onClose: @escaping () -> Void) {
         self.viewModel = viewModel
@@ -114,6 +115,20 @@ struct SettingsView: View {
                 .padding()
             }
             
+            // Validation error display
+            if let error = pathValidationError {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.red)
+                    Text(error)
+                        .font(.caption)
+                        .foregroundColor(.red)
+                    Spacer()
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 8)
+            }
+            
             Divider()
             
             // Footer buttons
@@ -126,30 +141,58 @@ struct SettingsView: View {
                 Spacer()
                 
                 Button("Save") {
-                    // Apply interval setting
-                    viewModel.updateInterval = selectedInterval
-                    
-                    // Apply path settings
-                    viewModel.settingsManager.settings.jsonlFilePath = jsonlFilePath.isEmpty ? nil : jsonlFilePath
-                    viewModel.settingsManager.settings.ccusageCommandPath = ccusageCommandPath.isEmpty ? nil : ccusageCommandPath
-                    
-                    // Apply launch at login setting
-                    viewModel.settingsManager.settings.autoLaunchAtLogin = autoLaunchAtLogin
-                    
-                    // Update the service with new paths
-                    viewModel.updatePaths(
-                        ccusageCommand: ccusageCommandPath.isEmpty ? nil : ccusageCommandPath,
-                        jsonlPath: jsonlFilePath.isEmpty ? nil : jsonlFilePath
-                    )
-                    
-                    onClose()
+                    // Validate paths before saving
+                    if validatePaths() {
+                        // Apply interval setting
+                        viewModel.updateInterval = selectedInterval
+                        
+                        // Apply path settings
+                        viewModel.settingsManager.settings.jsonlFilePath = jsonlFilePath.isEmpty ? nil : jsonlFilePath
+                        viewModel.settingsManager.settings.ccusageCommandPath = ccusageCommandPath.isEmpty ? nil : ccusageCommandPath
+                        
+                        // Apply launch at login setting
+                        viewModel.settingsManager.settings.autoLaunchAtLogin = autoLaunchAtLogin
+                        
+                        // Update the service with new paths
+                        viewModel.updatePaths(
+                            ccusageCommand: ccusageCommandPath.isEmpty ? nil : ccusageCommandPath,
+                            jsonlPath: jsonlFilePath.isEmpty ? nil : jsonlFilePath
+                        )
+                        
+                        onClose()
+                    }
                 }
                 .keyboardShortcut(.defaultAction)
                 .buttonStyle(.borderedProminent)
             }
             .padding()
         }
-        .frame(width: 450, height: 420)
+        .frame(width: 450, height: 450)
+    }
+    
+    private func validatePaths() -> Bool {
+        pathValidationError = nil
+        
+        // Validate ccusage command path
+        if !ccusageCommandPath.isEmpty {
+            let isExecutable = FileManager.default.isExecutableFile(atPath: ccusageCommandPath)
+            if !isExecutable {
+                pathValidationError = "ccusage command path is not executable"
+                return false
+            }
+        }
+        
+        // Validate JSONL path
+        if !jsonlFilePath.isEmpty {
+            let url = URL(fileURLWithPath: jsonlFilePath)
+            let dirPath = url.deletingLastPathComponent().path
+            if !FileManager.default.fileExists(atPath: dirPath) {
+                pathValidationError = "JSONL directory does not exist"
+                return false
+            }
+        }
+        
+        return true
     }
 }
 
